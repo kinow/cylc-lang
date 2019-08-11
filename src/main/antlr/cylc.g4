@@ -15,7 +15,7 @@ sections : section;
 
 section: SECTION_TEXT;
 
-option : TEXT '=' STRING
+option : TEXT '=' (TEXT | STRING)
        ;
 
 COMMENT : '#'  ~[\r\n]* -> skip ;
@@ -26,7 +26,7 @@ L_SQUARE_BRACKET: '[';
 RBRACKETS: R_SQUARE_BACKET+;
 R_SQUARE_BACKET: ']';
 
-TEXT: [a-zA-Z0-9_ ]+;
+TEXT: [a-zA-Z0-9_\-(), ]+;
 
 SECTION_TEXT: LBRACKETS TEXT RBRACKETS;
 
