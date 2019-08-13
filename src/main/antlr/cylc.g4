@@ -5,81 +5,132 @@
 
 grammar cylc;
 
-file: (ini)+
+// parser rules
+
+file
+    :
+        (ini)+
     ;
 
-ini : sections (sections | option)*
+ini
+    :
+        sections (sections | option)*
     ;
 
-sections : section;
+sections
+    :
+        section
+    ;
 
-section: SECTION_TEXT;
+section
+    :
+        SECTION_TEXT
+    ;
 
-option : TEXT '=' (TEXT | STRING)
-       ;
+option
+    :
+        TEXT '=' (TEXT | STRING)
+    ;
 
-COMMENT : '#'  ~[\r\n]* -> skip ;
-WS      : [ \t\n\r]+ -> skip ;
+// lexer tokens
 
-LBRACKETS: L_SQUARE_BRACKET+;
-L_SQUARE_BRACKET: '[';
-RBRACKETS: R_SQUARE_BACKET+;
-R_SQUARE_BACKET: ']';
+COMMENT
+    :
+        '#'  ~[\r\n]* -> skip
+    ;
 
-TEXT: [a-zA-Z0-9_\-(), ]+;
+WS
+    :
+        [ \t\n\r]+ -> skip
+    ;
 
-SECTION_TEXT: LBRACKETS TEXT RBRACKETS;
+LBRACKETS
+    :
+        L_SQUARE_BRACKET+
+    ;
+
+L_SQUARE_BRACKET
+    :
+        '['
+    ;
+
+RBRACKETS
+    :
+        R_SQUARE_BACKET+
+    ;
+
+R_SQUARE_BACKET
+    :
+        ']'
+    ;
+
+TEXT
+    :
+        [a-zA-Z0-9_\-(), ]+
+    ;
+
+SECTION_TEXT
+    :
+        LBRACKETS (TEXT) RBRACKETS
+    ;
 
 STRING
- : ( SHORT_STRING | LONG_STRING )
- ;
+    :
+        ( SHORT_STRING | LONG_STRING )
+    ;
 
 SECTION
-    :  L_SQUARE_BRACKET* TEXT R_SQUARE_BACKET*
+    :
+        L_SQUARE_BRACKET* TEXT R_SQUARE_BACKET*
     ;
 
 NEWLINE
- : ( '\r'? '\n' | '\r' | '\f' ) SPACES?
- ;
+    :
+        ( '\r'? '\n' | '\r' | '\f' ) SPACES?
+    ;
 
-/*
- * Fragments. These will not be tokens.
- */
+// fragments (not really tokens)
+
+// some were copied from the Python 3 grammar
 
 /// shortstring     ::=  "'" shortstringitem* "'" | '"' shortstringitem* '"'
 /// shortstringitem ::=  shortstringchar | stringescapeseq
 /// shortstringchar ::=  <any source character except "\" or newline or the quote>
 fragment SHORT_STRING
- : '\'' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f'] )* '\''
- | '"' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f"] )* '"'
- ;
+    :
+        '\'' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f'] )* '\'' | '"' ( STRING_ESCAPE_SEQ | ~[\\\r\n\f"] )* '"'
+    ;
+
 /// longstring      ::=  "'''" longstringitem* "'''" | '"""' longstringitem* '"""'
 fragment LONG_STRING
- : '\'\'\'' LONG_STRING_ITEM*? '\'\'\''
- | '"""' LONG_STRING_ITEM*? '"""'
- ;
+    :
+        '\'\'\'' LONG_STRING_ITEM*? '\'\'\'' | '"""' LONG_STRING_ITEM*? '"""'
+    ;
 
 /// longstringitem  ::=  longstringchar | stringescapeseq
 fragment LONG_STRING_ITEM
- : LONG_STRING_CHAR
- | STRING_ESCAPE_SEQ
- ;
+    :
+        LONG_STRING_CHAR | STRING_ESCAPE_SEQ
+    ;
 
 /// longstringchar  ::=  <any source character except "\">
 fragment LONG_STRING_CHAR
- : ~'\\'
- ;
+    :
+        ~'\\'
+    ;
 
 /// stringescapeseq ::=  "\" <any source character>
 fragment STRING_ESCAPE_SEQ
- : '\\' .
- | '\\' NEWLINE
- ;
+    :
+        '\\' . | '\\' NEWLINE
+    ;
 
 fragment SPACES
- : [ \t]+
- ;
+    :
+        [ \t]+
+    ;
 
 fragment LINE_JOINING
- : '\\' SPACES? ( '\r'? '\n' | '\r' | '\f')
- ;
+    :
+        '\\' SPACES? ( '\r'? '\n' | '\r' | '\f')
+    ;
